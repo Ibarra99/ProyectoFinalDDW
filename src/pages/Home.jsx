@@ -1,53 +1,73 @@
-import { useEffect, useState } from "react"
-import { Layout } from "../components/Layout"
-import { useAuth } from "../context/UserContext"
+import { useEffect, useState } from "react";
+import { Layout } from "../components/Layout";
+import { useAuth } from "../context/UserContext";
+import ProductGrid from "../components/ProductGrid";
+import "../styles/pages/global.css";
 
 const Home = () => {
-  const [products, setProducts] = useState([])
-  const [showPopup, setShowPopup] = useState(null)
-  const [productToEdit, setProductToEdit] = useState(null)
-  const [titleEdit, setTitleEdit] = useState("")
-  const [priceEdit, setPriceEdit] = useState("")
-  const [descriptionEdit, setDescriptionEdit] = useState("")
-  const [categoryEdit, setCategoryEdit] = useState("")
-  const [imageEdit, setImageEdit] = useState("")
+  const [products, setProducts] = useState([]);
+  const [showPopup, setShowPopup] = useState(false);
+  const [productToEdit, setProductToEdit] = useState(null);
+  const [titleEdit, setTitleEdit] = useState("");
+  const [priceEdit, setPriceEdit] = useState("");
+  const [descriptionEdit, setDescriptionEdit] = useState("");
+  const [categoryEdit, setCategoryEdit] = useState("");
+  const [imageEdit, setImageEdit] = useState("");
+  const [search, setSearch] = useState("");
+  const [errors, setErrors] = useState({});
 
-  // simulando existencia del usuario, proximamente este estado será global
-  const { user } = useAuth()
+  const { user } = useAuth();
 
+  // Fetch productos
   const fetchingProducts = async () => {
-    const response = await fetch("https://fakestoreapi.com/products", { method: "GET" })
-    const data = await response.json()
-    setProducts(data)
-  }
+    const response = await fetch("https://fakestoreapi.com/products");
+    const data = await response.json();
+    setProducts(data);
+  };
 
-  // El array vacío (dependencias) espera a que ejecute el return del jsx. Si tiene algo, useEffect se va a ejecutar cada vez que se modifique lo que este dentro de la dependencia.
   useEffect(() => {
-    fetchingProducts()
-  }, [])
+    fetchingProducts();
+  }, []);
 
   const handleDelete = async (id) => {
-    const response = await fetch(`https://fakestoreapi.com/products/${id}`, { method: "DELETE" })
+    const response = await fetch(`https://fakestoreapi.com/products/${id}`, {
+      method: "DELETE",
+    });
 
     if (response.ok) {
-      setProducts(prevProduct => prevProduct.filter((product) => product.id != id))
-      // fetchingProducts()
+      setProducts((prev) => prev.filter((p) => p.id !== id));
     }
-  }
+  };
 
   const handleOpenEdit = (product) => {
-    setShowPopup(true)
-    setProductToEdit(product)
-    setTitleEdit(product.title)
-    setPriceEdit(product.price)
-    setDescriptionEdit(product.description)
-    setCategoryEdit(product.category)
-    setImageEdit(product.image)
-  }
+    setShowPopup(true);
+    setProductToEdit(product);
+    setTitleEdit(product.title);
+    setPriceEdit(product.price);
+    setDescriptionEdit(product.description);
+    setCategoryEdit(product.category);
+    setImageEdit(product.image);
+  };
 
-  // petición al backend mediante fetch para modificar-> método PATCH / PUT https://fakeproductapi.com/products
+  // Validación de formulario
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!titleEdit.trim()) newErrors.title = "El título es obligatorio";
+    if (!priceEdit || isNaN(priceEdit) || Number(priceEdit) <= 0)
+      newErrors.price = "Ingrese un precio válido";
+    if (!descriptionEdit.trim()) newErrors.description = "La descripción es obligatoria";
+    if (!categoryEdit.trim()) newErrors.category = "La categoría es obligatoria";
+    if (!imageEdit.trim()) newErrors.image = "La URL de la imagen es obligatoria";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleUpdate = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
+
+    if (!validateForm()) return;
 
     const updatedProduct = {
       id: productToEdit.id,
@@ -55,42 +75,44 @@ const Home = () => {
       price: Number(priceEdit),
       description: descriptionEdit,
       category: categoryEdit,
-      image: imageEdit
-    }
+      image: imageEdit,
+    };
 
     try {
       const response = await fetch(`https://fakestoreapi.com/products/${productToEdit.id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(updatedProduct)
-      })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedProduct),
+      });
 
       if (response.ok) {
-        const data = await response.json()
-        setProducts(prevProduct =>
-          prevProduct.map((product) =>
-            product.id === productToEdit.id
-              ? data
-              : product
-          ))
-        // fetchingProducts()
+        const data = await response.json();
+        setProducts((prev) =>
+          prev.map((p) => (p.id === productToEdit.id ? data : p))
+        );
       }
-      setShowPopup(false)
+      setShowPopup(false);
+      setErrors({});
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
+
+  // Filtrado en tiempo real
+  const filteredProducts = products.filter((product) =>
+    product.title.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <Layout>
-      <section>
+      <section className="home-welcome">
         <h1>Bienvenido a Nuestra Tienda</h1>
-        <p>Descubrí una selección exclusiva de productos para vos. Calidad, confianza y atención personalizada.</p>
+        <p>
+          Descubrí una selección exclusiva de productos para vos. Calidad, confianza y atención personalizada.
+        </p>
       </section>
 
-      <section>
+      <section className="home-features">
         <h2>¿Por qué elegirnos?</h2>
         <ul>
           <li>
@@ -108,70 +130,79 @@ const Home = () => {
         </ul>
       </section>
 
-      <section>
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="Buscar productos..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      <section className="home-products">
         <h2>Nuestros productos</h2>
         <p>Elegí entre nuestras categorías más populares.</p>
 
+        {showPopup && (
+          <div className="popup-overlay">
+            <section className="popup-edit">
+              <h2>Editando producto</h2>
+              <button onClick={() => setShowPopup(false)}>Cerrar</button>
+              <form onSubmit={handleUpdate}>
+                <input
+                  type="text"
+                  placeholder="Ingrese el título"
+                  value={titleEdit}
+                  onChange={(e) => setTitleEdit(e.target.value)}
+                />
+                {errors.title && <p className="error">{errors.title}</p>}
 
-        {
-          showPopup && <section className="popup-edit">
-            <h2>Editando producto.</h2>
-            <button onClick={() => setShowPopup(null)}>Cerrar</button>
-            <form onSubmit={handleUpdate}>
-              <input
-                type="text"
-                placeholder="Ingrese el titulo"
-                value={titleEdit}
-                onChange={(e) => setTitleEdit(e.target.value)}
-              />
-              <input
-                type="number"
-                placeholder="Ingrese el precio"
-                value={priceEdit}
-                onChange={(e) => setPriceEdit(e.target.value)}
-              />
-              <textarea
-                placeholder="Ingrese la descripción"
-                value={descriptionEdit}
-                onChange={(e) => setDescriptionEdit(e.target.value)}
-              ></textarea>
-              <input
-                type="text"
-                placeholder="Ingrese la categoria"
-                value={categoryEdit}
-                onChange={(e) => setCategoryEdit(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Ingrese la URL de la imagen"
-                value={imageEdit}
-                onChange={(e) => setImageEdit(e.target.value)}
-              />
-              <button>Actualizar</button>
-            </form>
-          </section>
-        }
+                <input
+                  type="number"
+                  placeholder="Ingrese el precio"
+                  value={priceEdit}
+                  onChange={(e) => setPriceEdit(e.target.value)}
+                />
+                {errors.price && <p className="error">{errors.price}</p>}
 
-        <div>
-          {
-            products.map((product) => <div key={product.id}>
-              <h2 key={product.id}>{product.title}</h2>
-              <img width="80px" src={product.image} alt={`Imagen de ${product.title}`} />
-              <p>${product.price}</p>
-              <p>{product.description}</p>
-              <p><strong>{product.category}</strong></p>
-              {
-                user && <div>
-                  <button onClick={() => handleOpenEdit(product)}>Actualizar</button>
-                  <button onClick={() => handleDelete(product.id)}>Borrar</button>
-                </div>
-              }
-            </div>)
-          }
-        </div>
+                <textarea
+                  placeholder="Ingrese la descripción"
+                  value={descriptionEdit}
+                  onChange={(e) => setDescriptionEdit(e.target.value)}
+                />
+                {errors.description && <p className="error">{errors.description}</p>}
+
+                <input
+                  type="text"
+                  placeholder="Ingrese la categoría"
+                  value={categoryEdit}
+                  onChange={(e) => setCategoryEdit(e.target.value)}
+                />
+                {errors.category && <p className="error">{errors.category}</p>}
+
+                <input
+                  type="text"
+                  placeholder="Ingrese la URL de la imagen"
+                  value={imageEdit}
+                  onChange={(e) => setImageEdit(e.target.value)}
+                />
+                {errors.image && <p className="error">{errors.image}</p>}
+
+                <button>Actualizar</button>
+              </form>
+            </section>
+          </div>
+        )}
+
+        <ProductGrid
+          products={filteredProducts}
+          user={user}
+          onEdit={handleOpenEdit}
+          onDelete={handleDelete}
+        />
       </section>
     </Layout>
-  )
-}
+  );
+};
 
-export { Home }
+export { Home };
