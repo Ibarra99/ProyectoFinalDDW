@@ -15,6 +15,7 @@ const RouterApp = () => {
         <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
         <Route path="/login" element={<Login />} />
         <Route path="/registrate" element={<Register />} />
+        <Route path="/sobre-nosotros" element={<SobreNosotros />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
