@@ -1,123 +1,161 @@
-import { useEffect, useMemo, useState } from "react";
-import { useAuth } from "../context/UserContext";
-import ProductGrid from "../components/ProductGrid";
-import "../styles/pages/global.css";
+// src/pages/Home.jsx
+import { useEffect, useMemo, useRef, useState } from "react"
+import { useAuth } from "../context/UserContext"
+import ProductGrid from "../components/ProductGrid"
+import { Modal as BsModal } from "bootstrap"
+import "../styles/global.css"
 
 const Home = () => {
-  const [products, setProducts] = useState([]);
-  const [showPopup, setShowPopup] = useState(false);
-  const [productToEdit, setProductToEdit] = useState(null);
-  const [titleEdit, setTitleEdit] = useState("");
-  const [priceEdit, setPriceEdit] = useState("");
-  const [descriptionEdit, setDescriptionEdit] = useState("");
-  const [categoryEdit, setCategoryEdit] = useState("");
-  const [imageEdit, setImageEdit] = useState("");
-  const [search, setSearch] = useState("");
-  const [debounced, setDebounced] = useState("");
-  const [errors, setErrors] = useState({});
+  // estados de productos y búsqueda
+  const [productos, setProductos] = useState([])
+  const [busqueda, setBusqueda] = useState("")
 
-  const { user } = useAuth();
+  // estados para editar
+  const [mostrarModal, setMostrarModal] = useState(false) // solo para saber si está abierto
+  const [productoAEditar, setProductoAEditar] = useState(null)
+  const [tituloEdit, setTituloEdit] = useState("")
+  const [precioEdit, setPrecioEdit] = useState("")
+  const [descripcionEdit, setDescripcionEdit] = useState("")
+  const [categoriaEdit, setCategoriaEdit] = useState("")
+  const [imagenEdit, setImagenEdit] = useState("")
+  const [errores, setErrores] = useState({})
 
-  const fetchingProducts = async () => {
-    const response = await fetch("https://fakestoreapi.com/products");
-    const data = await response.json();
-    setProducts(data);
-  };
+  // estados auxiliares
+  const [borrandoId, setBorrandoId] = useState(null)
+  const [cargando, setCargando] = useState(true)
 
-  useEffect(() => { fetchingProducts(); }, []);
+  const { user } = useAuth()
 
-  // debounce 300ms
+  // referencia al modal de bootstrap
+  const modalRef = useRef(null)
+
+  // traer productos
+  const traerProductos = async () => {
+    try {
+      setCargando(true)
+      const r = await fetch("https://fakestoreapi.com/products")
+      const data = await r.json()
+      setProductos(data)
+    } catch (e) {
+      console.log("error al traer productos", e)
+    } finally {
+      setCargando(false)
+    }
+  }
+
   useEffect(() => {
-    const id = setTimeout(() => setDebounced(search), 300);
-    return () => clearTimeout(id);
-  }, [search]);
+    traerProductos()
+  }, [])
 
-  const handleDelete = async (id) => {
-    const response = await fetch(`https://fakestoreapi.com/products/${id}`, {
-      method: "DELETE",
-    });
-    if (response.ok) setProducts((prev) => prev.filter((p) => p.id !== id));
-  };
+  // abrir modal con datos del producto
+  const abrirEdicion = (prod) => {
+    setProductoAEditar(prod)
+    setTituloEdit(prod.title)
+    setPrecioEdit(prod.price)
+    setDescripcionEdit(prod.description)
+    setCategoriaEdit(prod.category)
+    setImagenEdit(prod.image)
+    setErrores({})
 
-  const handleOpenEdit = (product) => {
-    setShowPopup(true);
-    setProductToEdit(product);
-    setTitleEdit(product.title);
-    setPriceEdit(product.price);
-    setDescriptionEdit(product.description);
-    setCategoryEdit(product.category);
-    setImageEdit(product.image);
-  };
+    // mostrar modal bootstrap
+    const m = BsModal.getOrCreateInstance(modalRef.current)
+    m.show()
+    setMostrarModal(true)
+  }
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!titleEdit.trim()) newErrors.title = "El título es obligatorio";
-    if (!priceEdit || isNaN(priceEdit) || Number(priceEdit) <= 0) newErrors.price = "Ingrese un precio válido";
-    if (!descriptionEdit.trim()) newErrors.description = "La descripción es obligatoria";
-    if (!categoryEdit.trim()) newErrors.category = "La categoría es obligatoria";
-    if (!imageEdit.trim()) newErrors.image = "La URL de la imagen es obligatoria";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  // cerrar modal
+  const cerrarEdicion = () => {
+    const m = BsModal.getOrCreateInstance(modalRef.current)
+    m.hide()
+    setMostrarModal(false)
+  }
 
-  const handleUpdate = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+  // validar form simple
+  const validar = () => {
+    const e = {}
+    if (!tituloEdit.trim()) e.titulo = "El título es obligatorio"
+    if (!precioEdit || isNaN(precioEdit) || Number(precioEdit) <= 0) e.precio = "Precio inválido"
+    if (!descripcionEdit.trim()) e.descripcion = "La descripción es obligatoria"
+    if (!categoriaEdit.trim()) e.categoria = "La categoría es obligatoria"
+    if (!imagenEdit.trim()) e.imagen = "La URL de la imagen es obligatoria"
+    setErrores(e)
+    return Object.keys(e).length === 0
+  }
 
-    const updatedProduct = {
-      id: productToEdit.id,
-      title: titleEdit,
-      price: Number(priceEdit),
-      description: descriptionEdit,
-      category: categoryEdit,
-      image: imageEdit,
-    };
+  // guardar cambios (PUT)
+  const guardarEdicion = async (e) => {
+    e.preventDefault()
+    if (!validar()) return
+
+    const actualizado = {
+      id: productoAEditar.id,
+      title: tituloEdit,
+      price: Number(precioEdit),
+      description: descripcionEdit,
+      category: categoriaEdit,
+      image: imagenEdit
+    }
 
     try {
-      const response = await fetch(`https://fakestoreapi.com/products/${productToEdit.id}`, {
+      const r = await fetch(`https://fakestoreapi.com/products/${productoAEditar.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedProduct),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setProducts((prev) => prev.map((p) => (p.id === productToEdit.id ? data : p)));
-        setShowPopup(false);
-        setErrors({});
+        body: JSON.stringify(actualizado)
+      })
+      if (r.ok) {
+        const data = await r.json()
+        // reemplazo en la lista
+        setProductos((prev) => prev.map(p => p.id === data.id ? data : p))
+        cerrarEdicion()
       }
     } catch (error) {
-      console.log(error);
+      console.log("error al actualizar", error)
     }
-  };
+  }
 
-  const filteredProducts = useMemo(() => {
-    const q = debounced.trim().toLowerCase();
-    if (!q) return products;
-    return products.filter((product) => product.title.toLowerCase().includes(q));
-  }, [products, debounced]);
+  // borrar
+  const borrarProducto = async (id) => {
+    try {
+      setBorrandoId(id)
+      const r = await fetch(`https://fakestoreapi.com/products/${id}`, { method: "DELETE" })
+      if (r.ok) {
+        setProductos((prev) => prev.filter(p => p.id !== id))
+      }
+    } catch (e) {
+      console.log("error al borrar", e)
+    } finally {
+      setBorrandoId(null)
+    }
+  }
+
+  // filtro simple por título
+  const listaFiltrada = useMemo(() => {
+    const q = busqueda.trim().toLowerCase()
+    if (!q) return productos
+    return productos.filter(p => p.title.toLowerCase().includes(q))
+  }, [productos, busqueda])
 
   return (
     <>
       <section className="home-welcome">
         <h1>Bienvenido a Nuestra Tienda</h1>
-        <p>Descubrí una selección exclusiva de productos para vos. Calidad, confianza y atención personalizada.</p>
+        <p>Acá podés ver algunos productos y si estás logueado los podés editar o borrar.</p>
       </section>
 
       <section className="home-features">
-        <h2>¿Por qué elegirnos?</h2>
+        <h2 className="mb-3">¿Por qué elegirnos?</h2>
         <ul>
           <li>
             <h3>Envíos a todo el país</h3>
-            <p>Recibí tu compra en la puerta de tu casa estés donde estés.</p>
+            <p>Recibís tu compra en tu casa, estés donde estés.</p>
           </li>
           <li>
             <h3>Pagos seguros</h3>
-            <p>Trabajamos con plataformas que garantizan tu seguridad.</p>
+            <p>Trabajamos con plataformas confiables.</p>
           </li>
           <li>
             <h3>Atención personalizada</h3>
-            <p>Estamos disponibles para ayudarte en todo momento.</p>
+            <p>Te ayudamos con lo que necesites.</p>
           </li>
         </ul>
       </section>
@@ -126,52 +164,119 @@ const Home = () => {
         <input
           type="text"
           placeholder="Buscar productos..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
           aria-label="Buscar productos"
         />
       </div>
 
       <section className="home-products">
         <h2>Nuestros productos</h2>
-        <p>Elegí entre nuestras categorías más populares.</p>
+        <p>Elegí y mirá los detalles.</p>
 
-        {showPopup && (
-          <div className="popup-overlay" role="dialog" aria-modal="true">
-            <section className="popup-edit">
-              <h2>Editando producto</h2>
-              <button onClick={() => setShowPopup(false)}>Cerrar</button>
-              <form onSubmit={handleUpdate} noValidate>
-                <input type="text" placeholder="Ingrese el título" value={titleEdit} onChange={(e) => setTitleEdit(e.target.value)} />
-                {errors.title && <p className="error">{errors.title}</p>}
-
-                <input type="number" placeholder="Ingrese el precio" value={priceEdit} onChange={(e) => setPriceEdit(e.target.value)} />
-                {errors.price && <p className="error">{errors.price}</p>}
-
-                <textarea placeholder="Ingrese la descripción" value={descriptionEdit} onChange={(e) => setDescriptionEdit(e.target.value)} />
-                {errors.description && <p className="error">{errors.description}</p>}
-
-                <input type="text" placeholder="Ingrese la categoría" value={categoryEdit} onChange={(e) => setCategoryEdit(e.target.value)} />
-                {errors.category && <p className="error">{errors.category}</p>}
-
-                <input type="text" placeholder="Ingrese la URL de la imagen" value={imageEdit} onChange={(e) => setImageEdit(e.target.value)} />
-                {errors.image && <p className="error">{errors.image}</p>}
-
-                <button>Actualizar</button>
-              </form>
-            </section>
+        {cargando ? (
+          <div className="d-flex justify-content-center my-4">
+            <div className="spinner-border" role="status" />
           </div>
+        ) : (
+          <ProductGrid
+            products={listaFiltrada}
+            user={user}
+            onEdit={abrirEdicion}
+            onDelete={borrarProducto}
+            deletingId={borrandoId}
+          />
         )}
-
-        <ProductGrid
-          products={filteredProducts}
-          user={user}
-          onEdit={handleOpenEdit}
-          onDelete={handleDelete}
-        />
       </section>
-    </>
-  );
-};
 
-export { Home };
+      {/* MODAL DE EDICIÓN (Bootstrap) */}
+      <div
+        className="modal fade"
+        id="modalEditar"
+        tabIndex="-1"
+        aria-hidden="true"
+        ref={modalRef}
+      >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <form onSubmit={guardarEdicion} noValidate>
+              <div className="modal-header">
+                <h5 className="modal-title">Editar producto</h5>
+                <button type="button" className="btn-close" onClick={cerrarEdicion} aria-label="Close"></button>
+              </div>
+
+              <div className="modal-body">
+                <div className="mb-2">
+                  <label className="form-label">Título</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={tituloEdit}
+                    onChange={(e) => setTituloEdit(e.target.value)}
+                  />
+                  {errores.titulo && <small className="text-danger">{errores.titulo}</small>}
+                </div>
+
+                <div className="mb-2">
+                  <label className="form-label">Precio</label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    value={precioEdit}
+                    onChange={(e) => setPrecioEdit(e.target.value)}
+                  />
+                  {errores.precio && <small className="text-danger">{errores.precio}</small>}
+                </div>
+
+                <div className="mb-2">
+                  <label className="form-label">Descripción</label>
+                  <textarea
+                    className="form-control"
+                    rows="3"
+                    value={descripcionEdit}
+                    onChange={(e) => setDescripcionEdit(e.target.value)}
+                  />
+                  {errores.descripcion && <small className="text-danger">{errores.descripcion}</small>}
+                </div>
+
+                <div className="mb-2">
+                  <label className="form-label">Categoría</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={categoriaEdit}
+                    onChange={(e) => setCategoriaEdit(e.target.value)}
+                  />
+                  {errores.categoria && <small className="text-danger">{errores.categoria}</small>}
+                </div>
+
+                <div className="mb-2">
+                  <label className="form-label">URL de la imagen</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={imagenEdit}
+                    onChange={(e) => setImagenEdit(e.target.value)}
+                  />
+                  {errores.imagen && <small className="text-danger">{errores.imagen}</small>}
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button type="button" className="btn btn-outline-secondary" onClick={cerrarEdicion}>
+                  Cancelar
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Guardar cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      {/* fin modal */}
+    </>
+  )
+}
+
+export { Home }

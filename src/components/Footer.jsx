@@ -1,15 +1,13 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
-    <footer className="bg-light text-dark pt-4 mt-5 shadow-sm">
+    <footer className="bg-white text-dark pt-4 mt-5">
       <div className="container">
-        <div className="row">
-          {/* Sección de links rápidos */}
-          <div className="col-md-4 mb-3">
-            <h5>Links rápidos</h5>
-            <ul className="list-unstyled">
+        <div className="row gy-3">
+          <div className="col-md-4">
+            <h6 className="text-uppercase text-muted">Links rápidos</h6>
+            <ul className="list-unstyled mb-0">
               <li><Link to="/" className="text-dark text-decoration-none">Inicio</Link></li>
               <li><Link to="/dashboard" className="text-dark text-decoration-none">Dashboard</Link></li>
               <li><Link to="/sobre-nosotros" className="text-dark text-decoration-none">Sobre Nosotros</Link></li>
@@ -17,27 +15,27 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Sección de contacto */}
-          <div className="col-md-4 mb-3">
-            <h5>Contacto</h5>
-            <p>Email: contacto@tienda.com</p>
-            <p>Tel: +54 9 1234 5678</p>
-            <p>Dirección: Río Gallegos, Santa Cruz</p>
+          <div className="col-md-4">
+            <h6 className="text-uppercase text-muted">Contacto</h6>
+            <p className="mb-1">Email: contacto@tienda.com</p>
+            <p className="mb-1">Tel: +54 9 1234 5678</p>
+            <p className="mb-0">Río Gallegos, Santa Cruz</p>
           </div>
 
-          {/* Sección de redes sociales */}
-          <div className="col-md-4 mb-3">
-            <h5>Síguenos</h5>
-            <a href="#" className="text-dark me-3">Facebook</a>
-            <a href="#" className="text-dark me-3">Instagram</a>
-            <a href="#" className="text-dark">Twitter</a>
+          <div className="col-md-4">
+            <h6 className="text-uppercase text-muted">Seguinos</h6>
+            <div className="d-flex gap-3">
+              <a href="#" className="link-secondary">Facebook</a>
+              <a href="#" className="link-secondary">Instagram</a>
+              <a href="#" className="link-secondary">Twitter</a>
+            </div>
           </div>
         </div>
 
-        <hr />
-
-        <div className="text-center pb-3">
-          &copy; {new Date().getFullYear()} Tienda Virtual UTN. Todos los derechos reservados.
+        <hr className="my-3" />
+        <div className="d-flex justify-content-between align-items-center pb-3 small text-muted">
+          <span>&copy; {new Date().getFullYear()} Tienda Virtual UTN.</span>
+          <span>Roberto E. Ibarra</span>
         </div>
       </div>
     </footer>

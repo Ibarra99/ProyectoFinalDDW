@@ -1,18 +1,20 @@
 import React from "react"
 import ProductCard from "./ProductCard"
-import "./ProductGrid.css"
 
-const ProductGrid = ({ products, user, onEdit, onDelete }) => {
+const ProductGrid = ({ products, user, onEdit, onDelete, deletingId }) => {
+  // grilla responsive: 1 col en celu, 2 en tablet, 4 en desktop
   return (
-    <div className="grid">
-      {products.map(product => (
-        <ProductCard
-          key={product.id}
-          product={product}
-          user={user}
-          onEdit={onEdit}
-          onDelete={onDelete}
-        />
+    <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3">
+      {products.map(prod => (
+        <div className="col" key={prod.id}>
+          <ProductCard
+            product={prod}
+            user={user}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            deletingId={deletingId}
+          />
+        </div>
       ))}
     </div>
   )
