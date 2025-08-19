@@ -1,8 +1,4 @@
-// src/components/SobreNosotros.jsx
-import React from "react"
-import "../styles/pages/global.css"
-
-const SobreNosotros = () => {
+export const SobreNosotros = () => {
   return (
     <div className="sobre-nosotros-container">
       <header className="sobre-nosotros-header">
@@ -34,7 +30,5 @@ const SobreNosotros = () => {
         </p>
       </section>
     </div>
-  )
-}
-
-export { SobreNosotros }
+  );
+};

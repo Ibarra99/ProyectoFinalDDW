@@ -1,5 +1,4 @@
 import { useState } from "react"
-import { Layout } from "../components/Layout"
 
 const Dashboard = () => {
   const [name, setName] = useState("")
@@ -50,7 +49,7 @@ const Dashboard = () => {
   }
 
   return (
-    <Layout>
+    <>
       <h1>Panel de Administración</h1>
 
       <section>
@@ -86,7 +85,7 @@ const Dashboard = () => {
           </div>
         }
       </section>
-    </Layout>
+    </>
   )
 }
 

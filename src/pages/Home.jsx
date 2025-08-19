@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { Layout } from "../components/Layout";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../context/UserContext";
 import ProductGrid from "../components/ProductGrid";
 import "../styles/pages/global.css";
@@ -14,29 +13,30 @@ const Home = () => {
   const [categoryEdit, setCategoryEdit] = useState("");
   const [imageEdit, setImageEdit] = useState("");
   const [search, setSearch] = useState("");
+  const [debounced, setDebounced] = useState("");
   const [errors, setErrors] = useState({});
 
   const { user } = useAuth();
 
-  // Fetch productos
   const fetchingProducts = async () => {
     const response = await fetch("https://fakestoreapi.com/products");
     const data = await response.json();
     setProducts(data);
   };
 
+  useEffect(() => { fetchingProducts(); }, []);
+
+  // debounce 300ms
   useEffect(() => {
-    fetchingProducts();
-  }, []);
+    const id = setTimeout(() => setDebounced(search), 300);
+    return () => clearTimeout(id);
+  }, [search]);
 
   const handleDelete = async (id) => {
     const response = await fetch(`https://fakestoreapi.com/products/${id}`, {
       method: "DELETE",
     });
-
-    if (response.ok) {
-      setProducts((prev) => prev.filter((p) => p.id !== id));
-    }
+    if (response.ok) setProducts((prev) => prev.filter((p) => p.id !== id));
   };
 
   const handleOpenEdit = (product) => {
@@ -49,24 +49,19 @@ const Home = () => {
     setImageEdit(product.image);
   };
 
-  // Validación de formulario
   const validateForm = () => {
     const newErrors = {};
-
     if (!titleEdit.trim()) newErrors.title = "El título es obligatorio";
-    if (!priceEdit || isNaN(priceEdit) || Number(priceEdit) <= 0)
-      newErrors.price = "Ingrese un precio válido";
+    if (!priceEdit || isNaN(priceEdit) || Number(priceEdit) <= 0) newErrors.price = "Ingrese un precio válido";
     if (!descriptionEdit.trim()) newErrors.description = "La descripción es obligatoria";
     if (!categoryEdit.trim()) newErrors.category = "La categoría es obligatoria";
     if (!imageEdit.trim()) newErrors.image = "La URL de la imagen es obligatoria";
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) return;
 
     const updatedProduct = {
@@ -87,29 +82,26 @@ const Home = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setProducts((prev) =>
-          prev.map((p) => (p.id === productToEdit.id ? data : p))
-        );
+        setProducts((prev) => prev.map((p) => (p.id === productToEdit.id ? data : p)));
+        setShowPopup(false);
+        setErrors({});
       }
-      setShowPopup(false);
-      setErrors({});
     } catch (error) {
       console.log(error);
     }
   };
 
-  // Filtrado en tiempo real
-  const filteredProducts = products.filter((product) =>
-    product.title.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredProducts = useMemo(() => {
+    const q = debounced.trim().toLowerCase();
+    if (!q) return products;
+    return products.filter((product) => product.title.toLowerCase().includes(q));
+  }, [products, debounced]);
 
   return (
-    <Layout>
+    <>
       <section className="home-welcome">
         <h1>Bienvenido a Nuestra Tienda</h1>
-        <p>
-          Descubrí una selección exclusiva de productos para vos. Calidad, confianza y atención personalizada.
-        </p>
+        <p>Descubrí una selección exclusiva de productos para vos. Calidad, confianza y atención personalizada.</p>
       </section>
 
       <section className="home-features">
@@ -136,6 +128,7 @@ const Home = () => {
           placeholder="Buscar productos..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          aria-label="Buscar productos"
         />
       </div>
 
@@ -144,48 +137,24 @@ const Home = () => {
         <p>Elegí entre nuestras categorías más populares.</p>
 
         {showPopup && (
-          <div className="popup-overlay">
+          <div className="popup-overlay" role="dialog" aria-modal="true">
             <section className="popup-edit">
               <h2>Editando producto</h2>
               <button onClick={() => setShowPopup(false)}>Cerrar</button>
-              <form onSubmit={handleUpdate}>
-                <input
-                  type="text"
-                  placeholder="Ingrese el título"
-                  value={titleEdit}
-                  onChange={(e) => setTitleEdit(e.target.value)}
-                />
+              <form onSubmit={handleUpdate} noValidate>
+                <input type="text" placeholder="Ingrese el título" value={titleEdit} onChange={(e) => setTitleEdit(e.target.value)} />
                 {errors.title && <p className="error">{errors.title}</p>}
 
-                <input
-                  type="number"
-                  placeholder="Ingrese el precio"
-                  value={priceEdit}
-                  onChange={(e) => setPriceEdit(e.target.value)}
-                />
+                <input type="number" placeholder="Ingrese el precio" value={priceEdit} onChange={(e) => setPriceEdit(e.target.value)} />
                 {errors.price && <p className="error">{errors.price}</p>}
 
-                <textarea
-                  placeholder="Ingrese la descripción"
-                  value={descriptionEdit}
-                  onChange={(e) => setDescriptionEdit(e.target.value)}
-                />
+                <textarea placeholder="Ingrese la descripción" value={descriptionEdit} onChange={(e) => setDescriptionEdit(e.target.value)} />
                 {errors.description && <p className="error">{errors.description}</p>}
 
-                <input
-                  type="text"
-                  placeholder="Ingrese la categoría"
-                  value={categoryEdit}
-                  onChange={(e) => setCategoryEdit(e.target.value)}
-                />
+                <input type="text" placeholder="Ingrese la categoría" value={categoryEdit} onChange={(e) => setCategoryEdit(e.target.value)} />
                 {errors.category && <p className="error">{errors.category}</p>}
 
-                <input
-                  type="text"
-                  placeholder="Ingrese la URL de la imagen"
-                  value={imageEdit}
-                  onChange={(e) => setImageEdit(e.target.value)}
-                />
+                <input type="text" placeholder="Ingrese la URL de la imagen" value={imageEdit} onChange={(e) => setImageEdit(e.target.value)} />
                 {errors.image && <p className="error">{errors.image}</p>}
 
                 <button>Actualizar</button>
@@ -201,7 +170,7 @@ const Home = () => {
           onDelete={handleDelete}
         />
       </section>
-    </Layout>
+    </>
   );
 };
 

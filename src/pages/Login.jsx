@@ -1,55 +1,56 @@
-
-import { useState } from "react"
-import { Layout } from "../components/Layout"
-import { useAuth } from "../context/UserContext"
-import { useNavigate } from "react-router-dom"
+import { useState } from "react";
+import { useAuth } from "../context/UserContext";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const { login } = useAuth()
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const { login, authError } = useAuth();
 
-  const nagivate = useNavigate()
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    e.preventDefault()
-    console.log({ username, password })
-    const isLogin = await login(username, password)
-
+    e.preventDefault();
+    const isLogin = await login(username, password);
     if (isLogin) {
-      setUsername("")
-      setPassword("")
-      nagivate("/")
+      setUsername("");
+      setPassword("");
+      navigate("/");
     }
-  }
+  };
 
   return (
-    <Layout>
+    <section className="container my-4">
       <h1>Inicia sesión</h1>
-
       <section>
         <h2>Hola, bienvenido de nuevo</h2>
-        <p>johnd, m38rmF$</p>
-        <form onSubmit={handleLogin}>
+        <p><code>johnd</code>, <code>m38rmF$</code></p>
+        <form onSubmit={handleLogin} noValidate>
           <div>
             <label>Nombre de usuario:</label>
             <input
               type="text"
               onChange={(e) => setUsername(e.target.value)}
-              value={username} />
+              value={username}
+              required
+            />
           </div>
           <div>
             <label>Contraseña:</label>
             <input
               type="password"
               onChange={(e) => setPassword(e.target.value)}
-              value={password} />
+              value={password}
+              required
+              minLength={4}
+            />
           </div>
+          {authError && <p className="error" role="alert">{authError}</p>}
           <button>Ingresar</button>
         </form>
       </section>
-    </Layout>
-  )
-}
+    </section>
+  );
+};
 
-export { Login }
+export { Login };

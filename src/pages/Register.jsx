@@ -1,5 +1,4 @@
 import { useState } from "react"
-import { Layout } from "../components/Layout"
 
 const Register = () => {
   const [username, setUsername] = useState("")
@@ -33,7 +32,7 @@ const Register = () => {
   }
 
   return (
-    <Layout>
+    <>
       <h1>Registrate</h1>
 
       <section>
@@ -73,7 +72,7 @@ const Register = () => {
           success && <p style={{ color: "green" }}>{success}</p>
         }
       </section>
-    </Layout>
+    </>
   )
 }
 

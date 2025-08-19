@@ -1,16 +1,17 @@
-import { Footer } from "./Footer"
-import { Header } from "./Header"
+// src/components/Layout.jsx
+import React from "react";
+import { Header } from "./Header";
+import { Footer } from "./Footer";
+import { Outlet } from "react-router-dom";
 
-const Layout = (props) => {
+export const Layout = () => {
   return (
-    <div className={props.background}>
+    <>
       <Header />
-      <main>
-        {props.children}
+      <main className="container my-4">
+        <Outlet /> 
       </main>
       <Footer />
-    </div>
-  )
-}
-
-export { Layout }
+    </>
+  );
+};
