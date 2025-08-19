@@ -1,15 +1,18 @@
+// src/context/UserContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
 
 const UserContext = createContext();
 
 const UserProvider = (props) => {
-  const [user, setUser] = useState(null);       // { token } | null
-  const [authError, setAuthError] = useState(""); // opcional para mostrar errores en Login
+  const [user, setUser] = useState(null);          // { token } | null
+  const [authError, setAuthError] = useState("");  // mensaje de error de login
+  const [booting, setBooting] = useState(true);    // hidrata sesión al cargar
 
-  // Cargar sesión desde localStorage (autologin)
+  // Rehidratación: si hay token guardado, mantiene la sesión al refrescar
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) setUser({ token });
+    setBooting(false);
   }, []);
 
   const login = async (username, password) => {
@@ -47,7 +50,7 @@ const UserProvider = (props) => {
   };
 
   return (
-    <UserContext.Provider value={{ login, logout, user, authError }}>
+    <UserContext.Provider value={{ login, logout, user, authError, booting }}>
       {props.children}
     </UserContext.Provider>
   );

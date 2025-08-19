@@ -1,31 +1,39 @@
-import { useState } from "react";
-import { useAuth } from "../context/UserContext";
-import { useNavigate } from "react-router-dom";
+// src/pages/Login.jsx
+import { useState } from "react"
+import { useAuth } from "../context/UserContext"
+import { useNavigate } from "react-router-dom"
 
 const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const { login, authError } = useAuth();
-
-  const navigate = useNavigate();
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const [authError, setAuthError] = useState("") // <-- para manejar errores
+  const { login } = useAuth()
+  const navigate = useNavigate()
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    const isLogin = await login(username, password);
+    e.preventDefault()
+    setAuthError("")
+
+    const isLogin = await login(username, password)
+
     if (isLogin) {
-      setUsername("");
-      setPassword("");
-      navigate("/");
+      setUsername("")
+      setPassword("")
+      navigate("/")
+    } else {
+      setAuthError("Credenciales inválidas. Intente nuevamente.")
     }
-  };
+  }
 
   return (
-    <section className="container my-4">
+    <>
       <h1>Inicia sesión</h1>
+
       <section>
         <h2>Hola, bienvenido de nuevo</h2>
-        <p><code>johnd</code>, <code>m38rmF$</code></p>
-        <form onSubmit={handleLogin} noValidate>
+        <p>Probá con: <b>johnd</b> / <b>m38rmF$</b></p>
+
+        <form onSubmit={handleLogin}>
           <div>
             <label>Nombre de usuario:</label>
             <input
@@ -42,15 +50,16 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               value={password}
               required
-              minLength={4}
             />
           </div>
-          {authError && <p className="error" role="alert">{authError}</p>}
           <button>Ingresar</button>
         </form>
-      </section>
-    </section>
-  );
-};
 
-export { Login };
+        {/* Mensaje de error */}
+        {authError && <p style={{ color: "red", marginTop: "1rem" }}>{authError}</p>}
+      </section>
+    </>
+  )
+}
+
+export { Login }
