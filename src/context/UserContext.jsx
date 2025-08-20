@@ -1,14 +1,12 @@
-// src/context/UserContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
 
 const UserContext = createContext();
 
 const UserProvider = (props) => {
-  const [user, setUser] = useState(null);          // { token } | null
-  const [authError, setAuthError] = useState("");  // mensaje de error de login
-  const [booting, setBooting] = useState(true);    // hidrata sesión al cargar
+  const [user, setUser] = useState(null);         
+  const [authError, setAuthError] = useState(""); // mensaje de error de login
+  const [booting, setBooting] = useState(true);    
 
-  // Rehidratación: si hay token guardado, mantiene la sesión al refrescar
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) setUser({ token });
@@ -29,7 +27,7 @@ const UserProvider = (props) => {
         return false;
       }
 
-      const data = await response.json(); // { token }
+      const data = await response.json(); 
       if (!data?.token) {
         setAuthError("Respuesta inválida del servidor");
         return false;

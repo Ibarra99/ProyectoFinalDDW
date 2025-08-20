@@ -1,4 +1,3 @@
-// src/router/RouterApp.jsx
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "../components/Layout";
 import { Home } from "../pages/Home";
@@ -12,7 +11,6 @@ import { SobreNosotros } from "../pages/SobreNosotros";
 const RouterApp = () => (
   <BrowserRouter>
     <Routes>
-      {/* Todo lo que cuelga de este Route se renderiza dentro de Layout */}
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
         <Route path="/sobre-nosotros" element={<SobreNosotros />} />
@@ -28,7 +26,6 @@ const RouterApp = () => (
         <Route path="/registrate" element={<Register />} />
       </Route>
 
-      {/* 404 fuera del layout (o ponelo adentro si querés con el mismo header/footer) */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   </BrowserRouter>

@@ -1,4 +1,3 @@
-// src/pages/Home.jsx
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useAuth } from "../context/UserContext"
 import ProductGrid from "../components/ProductGrid"
@@ -6,11 +5,9 @@ import { Modal as BsModal } from "bootstrap"
 import "../styles/global.css"
 
 const Home = () => {
-  // estados de productos y búsqueda
   const [productos, setProductos] = useState([])
   const [busqueda, setBusqueda] = useState("")
 
-  // estados para editar (modal)
   const [productoAEditar, setProductoAEditar] = useState(null)
   const [tituloEdit, setTituloEdit] = useState("")
   const [precioEdit, setPrecioEdit] = useState("")
@@ -24,7 +21,6 @@ const Home = () => {
   const { user } = useAuth()
   const modalRef = useRef(null)
 
-  // traer productos
   const traerProductos = async () => {
     try {
       setCargando(true)
@@ -42,7 +38,6 @@ const Home = () => {
     traerProductos()
   }, [])
 
-  // abrir modal con datos del producto
   const abrirEdicion = (prod) => {
     setProductoAEditar(prod)
     setTituloEdit(prod.title)
@@ -55,13 +50,11 @@ const Home = () => {
     m.show()
   }
 
-  // cerrar modal
   const cerrarEdicion = () => {
     const m = BsModal.getOrCreateInstance(modalRef.current)
     m.hide()
   }
 
-  // validar form simple
   const validar = () => {
     const e = {}
     if (!tituloEdit.trim()) e.titulo = "El título es obligatorio"
@@ -73,7 +66,6 @@ const Home = () => {
     return Object.keys(e).length === 0
   }
 
-  // guardar cambios
   const guardarEdicion = async (e) => {
     e.preventDefault()
     if (!validar()) return
@@ -103,7 +95,6 @@ const Home = () => {
     }
   }
 
-  // borrar
   const borrarProducto = async (id) => {
     try {
       setBorrandoId(id)
@@ -116,7 +107,6 @@ const Home = () => {
     }
   }
 
-  // filtro simple por título
   const listaFiltrada = useMemo(() => {
     const q = busqueda.trim().toLowerCase()
     if (!q) return productos
@@ -125,14 +115,12 @@ const Home = () => {
 
   return (
     <main className="container px-0">
-      {/* home-welcome como SPAN centrado */}
       <div className="d-flex justify-content-center">
         <span className="home-welcome text-center d-block">
           Bienvenido a Nuestra Tienda
         </span>
       </div>
 
-     {/* home-features en el medio. título centrado, items a la izquierda */}
       <section className="home-features d-flex justify-content-center">
         <div style={{ maxWidth: 900, width: "100%" }}>
           <h2 className="text-center mb-3">¿Por qué elegirnos?</h2>

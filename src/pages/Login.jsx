@@ -1,4 +1,3 @@
-// src/pages/Login.jsx
 import { useState } from "react"
 import { useAuth } from "../context/UserContext"
 import { useNavigate } from "react-router-dom"
@@ -55,7 +54,6 @@ const Login = () => {
           <button>Ingresar</button>
         </form>
 
-        {/* Mensaje de error */}
         {authError && <p style={{ color: "red", marginTop: "1rem" }}>{authError}</p>}
       </section>
     </>

@@ -12,13 +12,11 @@ const Header = () => {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
       <div className="container">
-        {/* Marca simple con icono */}
         <Link className="navbar-brand d-flex align-items-center gap-2" to="/">
           <SquaresFour size={20} weight="fill" />
           <span>Tienda UTN</span>
         </Link>
 
-        {/* Botón hamburguesa en celular */}
         <button
           className="navbar-toggler"
           type="button"

@@ -22,10 +22,10 @@ header, footer {
 
 .home-features ul {
   list-style: none;
-  display: flex;            /* en fila */
-  justify-content: center;  /* centrado en la caja */
-  gap: 1rem;                /* separación entre items */
-  flex-wrap: wrap;          /* que baje a otra línea si no entra */
+  display: flex;            
+  justify-content: center;  
+  gap: 1rem;                
+  flex-wrap: wrap;          
   padding: 0;
 }
 
@@ -38,9 +38,9 @@ header, footer {
   text-align: center;
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
-/* Bienvenida más grande */
+
 .home-welcome {
-  font-size: 2.5rem;     /* más grande */
+  font-size: 2.5rem;     
   font-weight: bold;
   color: var(--accent-color);
   margin: 2rem 0;
@@ -48,10 +48,9 @@ header, footer {
   text-align: center;
 }
 
-/* Caja buscador + título productos */
 .productos-header {
   display: flex;
-  justify-content: space-between; /* título a la izq, buscador a la der */
+  justify-content: space-between; 
   align-items: center;
   margin-bottom: 1.5rem;
 }
