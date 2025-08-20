@@ -10,8 +10,7 @@ const Home = () => {
   const [productos, setProductos] = useState([])
   const [busqueda, setBusqueda] = useState("")
 
-  // estados para editar
-  const [mostrarModal, setMostrarModal] = useState(false) // solo para saber si está abierto
+  // estados para editar (modal)
   const [productoAEditar, setProductoAEditar] = useState(null)
   const [tituloEdit, setTituloEdit] = useState("")
   const [precioEdit, setPrecioEdit] = useState("")
@@ -19,14 +18,10 @@ const Home = () => {
   const [categoriaEdit, setCategoriaEdit] = useState("")
   const [imagenEdit, setImagenEdit] = useState("")
   const [errores, setErrores] = useState({})
-
-  // estados auxiliares
   const [borrandoId, setBorrandoId] = useState(null)
   const [cargando, setCargando] = useState(true)
 
   const { user } = useAuth()
-
-  // referencia al modal de bootstrap
   const modalRef = useRef(null)
 
   // traer productos
@@ -56,18 +51,14 @@ const Home = () => {
     setCategoriaEdit(prod.category)
     setImagenEdit(prod.image)
     setErrores({})
-
-    // mostrar modal bootstrap
     const m = BsModal.getOrCreateInstance(modalRef.current)
     m.show()
-    setMostrarModal(true)
   }
 
   // cerrar modal
   const cerrarEdicion = () => {
     const m = BsModal.getOrCreateInstance(modalRef.current)
     m.hide()
-    setMostrarModal(false)
   }
 
   // validar form simple
@@ -82,7 +73,7 @@ const Home = () => {
     return Object.keys(e).length === 0
   }
 
-  // guardar cambios (PUT)
+  // guardar cambios
   const guardarEdicion = async (e) => {
     e.preventDefault()
     if (!validar()) return
@@ -104,7 +95,6 @@ const Home = () => {
       })
       if (r.ok) {
         const data = await r.json()
-        // reemplazo en la lista
         setProductos((prev) => prev.map(p => p.id === data.id ? data : p))
         cerrarEdicion()
       }
@@ -118,9 +108,7 @@ const Home = () => {
     try {
       setBorrandoId(id)
       const r = await fetch(`https://fakestoreapi.com/products/${id}`, { method: "DELETE" })
-      if (r.ok) {
-        setProductos((prev) => prev.filter(p => p.id !== id))
-      }
+      if (r.ok) setProductos((prev) => prev.filter(p => p.id !== id))
     } catch (e) {
       console.log("error al borrar", e)
     } finally {
@@ -136,43 +124,49 @@ const Home = () => {
   }, [productos, busqueda])
 
   return (
-    <>
-      <section className="home-welcome">
-        <h1>Bienvenido a Nuestra Tienda</h1>
-        <p>Acá podés ver algunos productos y si estás logueado los podés editar o borrar.</p>
-      </section>
-
-      <section className="home-features">
-        <h2 className="mb-3">¿Por qué elegirnos?</h2>
-        <ul>
-          <li>
-            <h3>Envíos a todo el país</h3>
-            <p>Recibís tu compra en tu casa, estés donde estés.</p>
-          </li>
-          <li>
-            <h3>Pagos seguros</h3>
-            <p>Trabajamos con plataformas confiables.</p>
-          </li>
-          <li>
-            <h3>Atención personalizada</h3>
-            <p>Te ayudamos con lo que necesites.</p>
-          </li>
-        </ul>
-      </section>
-
-      <div className="search-bar">
-        <input
-          type="text"
-          placeholder="Buscar productos..."
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-          aria-label="Buscar productos"
-        />
+    <main className="container px-0">
+      {/* home-welcome como SPAN centrado */}
+      <div className="d-flex justify-content-center">
+        <span className="home-welcome text-center d-block">
+          Bienvenido a Nuestra Tienda
+        </span>
       </div>
 
-      <section className="home-products">
-        <h2>Nuestros productos</h2>
-        <p>Elegí y mirá los detalles.</p>
+     {/* home-features en el medio. título centrado, items a la izquierda */}
+      <section className="home-features d-flex justify-content-center">
+        <div style={{ maxWidth: 900, width: "100%" }}>
+          <h2 className="text-center mb-3">¿Por qué elegirnos?</h2>
+          <ul className="text-start">
+            <li>
+              <h3 className="h6">Envíos a todo el país</h3>
+              <p>Recibís tu compra en tu casa.</p>
+            </li>
+            <li>
+              <h3 className="h6">Pagos seguros</h3>
+              <p>Plataformas confiables.</p>
+            </li>
+            <li>
+              <h3 className="h6">Atención personalizada</h3>
+              <p>Te ayudamos con lo que necesites.</p>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <article className="card p-3">
+        <header className="d-flex flex-column flex-md-row align-items-md-center justify-content-md-between gap-2 mb-3">
+          <h2 className="m-0">Nuestros productos</h2>
+          <div style={{ minWidth: 240, width: "100%", maxWidth: 380 }}>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Buscar productos..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              aria-label="Buscar productos"
+            />
+          </div>
+        </header>
 
         {cargando ? (
           <div className="d-flex justify-content-center my-4">
@@ -187,9 +181,8 @@ const Home = () => {
             deletingId={borrandoId}
           />
         )}
-      </section>
+      </article>
 
-      {/* MODAL DE EDICIÓN (Bootstrap) */}
       <div
         className="modal fade"
         id="modalEditar"
@@ -274,8 +267,8 @@ const Home = () => {
           </div>
         </div>
       </div>
-      {/* fin modal */}
-    </>
+      
+    </main>
   )
 }
 
