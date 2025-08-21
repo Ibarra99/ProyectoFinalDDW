@@ -1,91 +1,116 @@
 import { useState } from "react"
 
 const Dashboard = () => {
-  const [name, setName] = useState("")
-  const [price, setPrice] = useState("")
-  const [description, setDescription] = useState("")
-  const [product, setProduct] = useState(null)
-  const [error, setError] = useState(null)
+  const [nombre, setNombre] = useState("")
+  const [precio, setPrecio] = useState("")
+  const [descripcion, setDescripcion] = useState("")
 
+  const [error, setError] = useState("")
+  const [okMsg, setOkMsg] = useState("")
+  const [cargando, setCargando] = useState(false)
 
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError(null)
-
-    if (!name || !price || !description) {
-      setError("Debes completar todos los campos")
-      return
+  const validar = () => {
+    if (!nombre || !precio || !descripcion) {
+      setError("Completá todos los campos")
+      return false
     }
-
-    if (name.length < 3) {
+    if (nombre.trim().length < 4) {
       setError("El nombre debe tener al menos 4 caracteres")
-      return
+      return false
     }
+    if (Number(precio) <= 0 || isNaN(Number(precio))) {
+      setError("El precio debe ser un número mayor a 0")
+      return false
+    }
+    return true
+  }
 
-    const newProduct = {
-      id: crypto.randomUUID(),
-      title: name,
-      price: price,
-      description: description,
+  const enviar = async (e) => {
+    e.preventDefault()
+    setError("")
+    setOkMsg("")
+
+    if (!validar()) return
+
+    const nuevo = {
+      title: nombre,
+      price: Number(precio),
+      description: descripcion,
       category: "",
       image: ""
     }
 
-    // petición al backend mediante fetch -> método POST https://fakeproductapi.com/products
-    const response = await fetch("https://fakestoreapi.com/products", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(newProduct)
-    })
-
-    const data = await response.json()
-    setProduct(data)
-    setName("")
-    setPrice("")
-    setDescription("")
+    try {
+      setCargando(true)
+      const r = await fetch("https://fakestoreapi.com/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(nuevo)
+      })
+      await r.json()
+      setOkMsg("Producto creado (demo)")
+      setNombre("")
+      setPrecio("")
+      setDescripcion("")
+    } catch (e) {
+      setError("No se pudo crear el producto. Probá de nuevo.")
+    } finally {
+      setCargando(false)
+    }
   }
 
   return (
-    <>
-      <h1>Panel de Administración</h1>
+    <div className="container my-5">
+      <h1 className="h4 mb-4">Panel de administración</h1>
 
-      <section>
-        <h2>Cargar nuevo producto</h2>
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label>Nombre del producto:</label>
-            <input type="text" name="nombre" onChange={(e) => setName(e.target.value)} value={name} />
-          </div>
+      <div className="card shadow-sm">
+        <div className="card-body">
+          <h2 className="h5 mb-3">Cargar nuevo producto</h2>
 
-          <div>
-            <label>Precio:</label>
-            <input type="number" name="precio" onChange={(e) => setPrice(e.target.value)} value={price} />
-          </div>
+          {error && <div className="alert alert-warning py-2">{error}</div>}
+          {okMsg && <div className="alert alert-success py-2">{okMsg}</div>}
 
-          <div>
-            <label>Descripción:</label>
-            <textarea name="descripcion" rows="4" onChange={(e) => setDescription(e.target.value)} value={description} />
-          </div>
+          <form onSubmit={enviar} noValidate>
+            <div className="mb-3">
+              <label className="form-label">Nombre</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Ej: Remera básica"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+              />
+            </div>
 
-          {
-            error && <p className="error">{error}</p>
-          }
+            <div className="mb-3">
+              <label className="form-label">Precio</label>
+              <input
+                type="number"
+                className="form-control"
+                placeholder="Ej: 9999"
+                value={precio}
+                onChange={(e) => setPrecio(e.target.value)}
+              />
+            </div>
 
-          <button>Guardar producto</button>
-        </form>
+            <div className="mb-3">
+              <label className="form-label">Descripción</label>
+              <textarea
+                className="form-control"
+                rows="3"
+                placeholder="Contá un poco del producto"
+                value={descripcion}
+                onChange={(e) => setDescripcion(e.target.value)}
+              />
+            </div>
 
-        {
-          product && <div>
-            <h3>{product.title}</h3>
-            <p>${product.price}</p>
-            <p>{product.description}</p>
-          </div>
-        }
-      </section>
-    </>
+            <button type="submit" className="btn btn-dark w-100" disabled={cargando}>
+              {cargando ? "Guardando..." : "Guardar producto"}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
   )
 }
 

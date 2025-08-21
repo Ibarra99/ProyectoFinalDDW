@@ -1,34 +1,47 @@
-export const SobreNosotros = () => {
+import React from "react"
+import { UsersThree, BookOpen, Star } from "@phosphor-icons/react"
+
+const SobreNosotros = () => {
   return (
-    <div className="sobre-nosotros-container">
-      <header className="sobre-nosotros-header">
+    <main className="sobre-nosotros">
+      <header>
         <h1>Sobre Nosotros</h1>
-        <p>Conocé más sobre nuestra tienda y nuestro equipo.</p>
       </header>
 
-      <section className="sobre-nosotros-section">
-        <h2>Nuestra Historia</h2>
+      <section className="sobre-caja">
+        <h2 className="sobre-titulo">
+          <UsersThree size={24} weight="duotone" />
+          <span className="quien-somos">Quiénes somos</span>
+        </h2>
         <p>
-          Fundada en 2025, nuestra tienda nació con el objetivo de ofrecer productos de calidad
-          con atención personalizada, cuidando siempre la experiencia del cliente.
+          Somos una tienda que busca ofrecer productos de calidad y una experiencia de compra
+          simple, sin vueltas. Atendemos consultas y tratamos de resolver rápido.
         </p>
       </section>
 
-      <section className="sobre-nosotros-section">
-        <h2>Misión y Valores</h2>
+      <section className="sobre-caja">
+        <h2 className="sobre-titulo">
+          <BookOpen size={24} weight="duotone" />
+          <span>Nuestra historia</span>
+        </h2>
         <p>
-          Nuestra misión es acercarte productos confiables y exclusivos. Nos guiamos por la transparencia,
-          el compromiso y la innovación constante para mejorar tu experiencia de compra.
+          Arrancamos como un proyecto chico y fuimos creciendo con la comunidad. Escuchamos a los
+          clientes y vamos ajustando lo necesario.
         </p>
       </section>
 
-      <section className="sobre-nosotros-section">
-        <h2>Equipo</h2>
+      <section className="sobre-caja">
+        <h2 className="sobre-titulo">
+          <Star size={24} weight="duotone" />
+          <span>Qué nos diferencia</span>
+        </h2>
         <p>
-          Contamos con un equipo apasionado y dedicado, listo para ayudarte en cada paso,
-          asegurando que tu experiencia sea única y satisfactoria.
+          Envíos a todo el país, atención personalizada y ganas de mejorar. Tratamos de mantener
+          precios justos y publicar info clara.
         </p>
       </section>
-    </div>
-  );
-};
+    </main>
+  )
+}
+
+export { SobreNosotros }

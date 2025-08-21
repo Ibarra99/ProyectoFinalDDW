@@ -1,107 +1,107 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 
 const Register = () => {
-  const [username, setUsername] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [success, setSuccess] = useState("")
-  const navigate = useNavigate()
+  const [usuario, setUsuario] = useState("")
+  const [correo, setCorreo] = useState("")
+  const [clave, setClave] = useState("")
 
-  const handleSubmit = async (e) => {
+  const [error, setError] = useState("")
+  const [okMsg, setOkMsg] = useState("")
+
+  const enviar = (e) => {
     e.preventDefault()
     setError("")
-    setSuccess("")
+    setOkMsg("")
 
-    if (!username || !email || !password) {
-      setError("Debes completar todos los campos")
+    if (!usuario || !correo || !clave) {
+      setError("Completá todos los campos")
       return
     }
 
-    const newUser = {
-      email,
-      username,
-      password,
-      name: { firstname: "test", lastname: "user" }, 
-      address: {
-        city: "test city",
-        street: "test street",
-        number: 123,
-        zipcode: "12345",
-        geolocation: { lat: "0", long: "0" }
-      },
-      phone: "123456789"
+    if (!correo.includes("@")) {
+      setError("Correo inválido")
+      return
+    }
+    if (clave.length < 4) {
+      setError("La contraseña debe tener al menos 4 caracteres")
+      return
     }
 
-    try {
-      const response = await fetch("https://fakestoreapi.com/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newUser)
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        console.log("Usuario creado:", data)
-        setSuccess("Usuario registrado con éxito. Redirigiendo...")
-        setUsername("")
-        setEmail("")
-        setPassword("")
-
-        // Redirigir al login después de 2 segundos
-        setTimeout(() => {
-          navigate("/login")
-        }, 2000)
-      } else {
-        setError("Hubo un problema al registrar el usuario")
-      }
-    } catch (err) {
-      console.error(err)
-      setError("Error de conexión con el servidor")
-    }
+    setOkMsg("Usuario registrado (demo). Ahora podés iniciar sesión.")
+    setUsuario("")
+    setCorreo("")
+    setClave("")
   }
 
   return (
-    <>
-      <h1>Registrate</h1>
-      <section>
-        <h2>Hola, bienvenido</h2>
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label>Username:</label>
-            <input
-              type="text"
-              onChange={(e) => setUsername(e.target.value)}
-              value={username}
-              required
-            />
-          </div>
-          <div>
-            <label>Correo electrónico:</label>
-            <input
-              type="email"
-              onChange={(e) => setEmail(e.target.value)}
-              value={email}
-              required
-            />
-          </div>
-          <div>
-            <label>Contraseña:</label>
-            <input
-              type="password"
-              onChange={(e) => setPassword(e.target.value)}
-              value={password}
-              required
-            />
-          </div>
-          <button>Registrar</button>
-        </form>
+    <div className="container my-5">
+      <div className="row justify-content-center">
+        <div className="col-12 col-md-7 col-lg-6">
+          <div className="card shadow-sm">
+            <div className="card-body">
+              <h1 className="h4 text-center mb-3">Crear cuenta</h1>
+              <p className="text-center text-muted mb-4">
+                Completá tus datos para registrarte (demo)
+              </p>
 
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        {success && <p style={{ color: "green" }}>{success}</p>}
-      </section>
-    </>
+              {error && <div className="alert alert-warning py-2">{error}</div>}
+              {okMsg && <div className="alert alert-success py-2">{okMsg}</div>}
+
+              <form onSubmit={enviar} noValidate>
+                <div className="mb-3">
+                  <label className="form-label">Usuario</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="tu usuario"
+                    value={usuario}
+                    onChange={(e) => setUsuario(e.target.value)}
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Correo</label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    placeholder="tu@correo.com"
+                    value={correo}
+                    onChange={(e) => setCorreo(e.target.value)}
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Contraseña</label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    placeholder="******"
+                    value={clave}
+                    onChange={(e) => setClave(e.target.value)}
+                  />
+                </div>
+
+                <button type="submit" className="btn btn-dark w-100">
+                  Registrarme
+                </button>
+              </form>
+
+              <div className="text-center mt-3">
+                <small className="text-muted">
+                  ¿Ya tenés cuenta?{" "}
+                  <Link to="/login">Ingresá acá</Link>
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-3">
+            <Link className="text-decoration-none" to="/">← Volver al inicio</Link>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 

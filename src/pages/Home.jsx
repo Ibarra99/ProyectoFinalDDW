@@ -143,7 +143,7 @@ const Home = () => {
 
       <article className="card p-3">
         <header className="d-flex flex-column flex-md-row align-items-md-center justify-content-md-between gap-2 mb-3">
-          <h2 className="m-0">Nuestros productos</h2>
+          <h2 className="m-0 text-secondary">Nuestros productos</h2>
           <div style={{ minWidth: 240, width: "100%", maxWidth: 380 }}>
             <input
               type="text"
