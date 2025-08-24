@@ -1,4 +1,3 @@
-import React from "react"
 import { UsersThree, BookOpen, Star } from "@phosphor-icons/react"
 
 const SobreNosotros = () => {
@@ -11,35 +10,30 @@ const SobreNosotros = () => {
       <section className="sobre-caja">
         <h2 className="sobre-titulo">
           <UsersThree size={24} weight="duotone" />
-          <span className="quien-somos">Quiénes somos</span>
+          <span className="quien-somos">Quien soy</span>
         </h2>
         <p>
-          Somos una tienda que busca ofrecer productos de calidad y una experiencia de compra
-          simple, sin vueltas. Atendemos consultas y tratamos de resolver rápido.
+          Soy estudiante de la Diplomatura en Desarrollo Web Full Stack (UTN) y este sitio forma parte de mi 
+          trabajo final. La idea fue practicar React, manejo de estados y diseño responsive creando una 
+          tienda online sencilla.
         </p>
+
       </section>
 
       <section className="sobre-caja">
         <h2 className="sobre-titulo">
           <BookOpen size={24} weight="duotone" />
-          <span>Nuestra historia</span>
+          <span>Mi historia</span>
         </h2>
-        <p>
-          Arrancamos como un proyecto chico y fuimos creciendo con la comunidad. Escuchamos a los
-          clientes y vamos ajustando lo necesario.
+       <p>
+          Empecé este proyecto como un desafío personal y académico: aplicar lo aprendido en clases en algo 
+          que se sienta real. Arranqué con lo básico y de a poco fui sumando rutas, login, validaciones y 
+          estilos globales. Es un ejercicio de aprendizaje continuo.
         </p>
+
       </section>
 
-      <section className="sobre-caja">
-        <h2 className="sobre-titulo">
-          <Star size={24} weight="duotone" />
-          <span>Qué nos diferencia</span>
-        </h2>
-        <p>
-          Envíos a todo el país, atención personalizada y ganas de mejorar. Tratamos de mantener
-          precios justos y publicar info clara.
-        </p>
-      </section>
+      
     </main>
   )
 }

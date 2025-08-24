@@ -161,13 +161,20 @@ const Home = () => {
             <div className="spinner-border" role="status" />
           </div>
         ) : (
-          <ProductGrid
-            products={listaFiltrada}
-            user={user}
-            onEdit={abrirEdicion}
-            onDelete={borrarProducto}
-            deletingId={borrandoId}
-          />
+          // ⬇️ NUEVO: mensaje de “sin resultados” cuando la búsqueda no devuelve nada
+          (listaFiltrada.length === 0 ? (
+            <div className="sin-resultados text-center py-4" role="status" aria-live="polite">
+              No se encontraron resultados para tu búsqueda.
+            </div>
+          ) : (
+            <ProductGrid
+              products={listaFiltrada}
+              user={user}
+              onEdit={abrirEdicion}
+              onDelete={borrarProducto}
+              deletingId={borrandoId}
+            />
+          ))
         )}
       </article>
 
